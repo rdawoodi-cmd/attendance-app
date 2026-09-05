@@ -56,7 +56,7 @@
 <script>
   // ===== تنظیمات =====
   // آدرس Web App اسکریپت گوگل (بعد از ساخت آن در مرحله بعد، اینجا جایگزین کنید)
-  const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbyfn5FHXFUuSCRqKrTw8vDPkUyWNga8aNFPDuy98ZC8o4k4Y2X48vv_Td75Y64zfqaASQ/exec";
+  const SHEET_ENDPOINT = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
   const CLASS_NAME = "کلاس فرهنگ و هنر"; // نام کلاس، در صورت نیاز تغییر دهید
 
   let userId = null;
@@ -64,14 +64,12 @@
 
   function tryGetEitaaUser() {
     try {
-      // تلاش برای خواندن اطلاعات کاربر از SDK ایتا.
-      // نام دقیق فیلدها باید طبق مستندات رسمی SDK تأیید شود؛
-      // اگر ساختار متفاوت بود، این بخش نیاز به اصلاح دارد.
+      // ساختار طبق مستندات رسمی SDK ایتا (WebAppInitData / WebAppUser) تایید شده است.
       const wa = window.Eitaa && window.Eitaa.WebApp;
       if (wa && wa.initDataUnsafe && wa.initDataUnsafe.user) {
         const u = wa.initDataUnsafe.user;
-        userId = u.id || u.user_id || null;
-        userName = [u.first_name, u.last_name].filter(Boolean).join(" ") || u.username || null;
+        userId = u.id || null;
+        userName = [u.first_name, u.last_name].filter(Boolean).join(" ") || null;
         return !!userName;
       }
     } catch (e) {
@@ -81,6 +79,7 @@
   }
 
   window.onload = function () {
+    const wa = window.Eitaa && window.Eitaa.WebApp;
     const found = tryGetEitaaUser();
     const nameDiv = document.getElementById("userName");
     const nameInput = document.getElementById("nameInput");
@@ -91,6 +90,11 @@
       // اگر SDK اطلاعات کاربر را نداد، از خود کاربر می‌خواهیم نامش را بنویسد
       nameDiv.textContent = "لطفاً نام خود را وارد کنید:";
       nameInput.style.display = "block";
+    }
+
+    // به ایتا اطلاع می‌دهیم که برنامک آماده نمایش است (طبق توصیه مستندات)
+    if (wa && typeof wa.ready === "function") {
+      wa.ready();
     }
   };
 
