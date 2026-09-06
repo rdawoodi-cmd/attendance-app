@@ -33,11 +33,14 @@
     color: #fff;
     width: 100%;
     cursor: pointer;
+    margin-bottom: 10px;
   }
+  #settingsBtn { background: #455a64; }
   button:disabled { background: #9e9e9e; }
   #status { margin-top: 16px; font-size: 14px; color: #555; min-height: 20px; }
+  #debugId { margin-top: 24px; font-size: 11px; color: #bbb; }
 
-  #overlay {
+  #overlay, #settingsOverlay {
     display: none;
     position: fixed;
     inset: 0;
@@ -47,7 +50,7 @@
     z-index: 999;
     padding: 20px;
   }
-  #popup {
+  .popup {
     background: #fff;
     border-radius: 16px;
     padding: 24px 20px;
@@ -55,17 +58,17 @@
     width: 100%;
     text-align: right;
   }
-  #popup h2 { font-size: 17px; margin: 0 0 16px; text-align: center; }
-  #popup label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; }
-  #popup input {
+  .popup h2 { font-size: 17px; margin: 0 0 16px; text-align: center; }
+  .popup label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; }
+  .popup input {
     width: 100%; padding: 10px; font-size: 15px;
     border-radius: 8px; border: 1px solid #ccc; margin-bottom: 14px;
     text-align: right;
   }
-  #popup .popup-buttons { display: flex; gap: 8px; }
-  #popup .popup-buttons button { font-size: 15px; padding: 10px; }
-  #cancelBtn { background: #e0e0e0; color: #333; }
-  #popupError { color: #c62828; font-size: 13px; min-height: 18px; margin-bottom: 6px; text-align: center; }
+  .popup-buttons { display: flex; gap: 8px; }
+  .popup-buttons button { font-size: 15px; padding: 10px; margin-bottom: 0; }
+  .cancelBtn { background: #e0e0e0; color: #333; }
+  .popupError { color: #c62828; font-size: 13px; min-height: 18px; margin-bottom: 6px; text-align: center; }
 </style>
 </head>
 <body>
@@ -74,29 +77,49 @@
   <h1>📋 ثبت حضور کلاس</h1>
   <div id="userName">در حال خواندن اطلاعات کاربر...</div>
   <button id="openPopupBtn" onclick="openPopup()">✅ ثبت حضور</button>
+  <button id="settingsBtn" onclick="openSettings()">⚙️ تنظیم ساعت حضور و غیاب</button>
   <div id="status"></div>
+  <div id="debugId"></div>
 </div>
 
+<!-- پنجره ثبت حضور دانش‌آموز -->
 <div id="overlay">
-  <div id="popup">
+  <div class="popup">
     <h2>ثبت حضور</h2>
-    <div id="popupError"></div>
+    <div id="popupError" class="popupError"></div>
     <label for="studentName">نام و نام‌خانوادگی</label>
     <input id="studentName" type="text" placeholder="مثلاً علی رضایی">
     <label for="courseName">نام درس</label>
     <input id="courseName" type="text" placeholder="مثلاً فرهنگ و هنر">
     <div class="popup-buttons">
-      <button id="cancelBtn" onclick="closePopup()">انصراف</button>
+      <button class="cancelBtn" onclick="closePopup()">انصراف</button>
       <button id="confirmBtn" onclick="submitAttendance()">ثبت</button>
+    </div>
+  </div>
+</div>
+
+<!-- پنجره تنظیم ساعت (فقط معلم) -->
+<div id="settingsOverlay">
+  <div class="popup">
+    <h2>تنظیم بازه‌ی حضور و غیاب</h2>
+    <div id="settingsError" class="popupError"></div>
+    <label for="startTime">ساعت شروع</label>
+    <input id="startTime" type="time">
+    <label for="endTime">ساعت پایان</label>
+    <input id="endTime" type="time">
+    <div class="popup-buttons">
+      <button class="cancelBtn" onclick="closeSettings()">انصراف</button>
+      <button id="saveScheduleBtn" onclick="saveSchedule()">ذخیره</button>
     </div>
   </div>
 </div>
 
 <script>
   // ===== تنظیمات =====
-  const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbz8-JLwmt3E2vyl29dpxVbTBy6NGZYayMmZNT0C3nfCwdlgCIkSIlhszceAuWHlRNl6Vw/exec";
+  const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbwNw6X9oPRRUXx0IEsJ-H738k1mJ8glQyjIxV88TRFHskqz84Yk1Mx8ZB33A-fJM0y4AQ/exec";
 
-  let eitaaProfileName = null; // نام و نام‌خانوادگی پروفایل ایتا (SDK فیلد "نام کاربری/@handle" ارائه نمی‌دهد)
+  let eitaaProfileName = null;
+  let eitaaUserId = null; // فقط پشت صحنه استفاده می‌شود، جایی نمایش داده نمی‌شود
 
   function tryGetEitaaUser() {
     try {
@@ -104,6 +127,7 @@
       if (wa && wa.initDataUnsafe && wa.initDataUnsafe.user) {
         const u = wa.initDataUnsafe.user;
         eitaaProfileName = [u.first_name, u.last_name].filter(Boolean).join(" ") || null;
+        eitaaUserId = u.id || null;
         return !!eitaaProfileName;
       }
     } catch (e) {
@@ -112,7 +136,6 @@
     return false;
   }
 
-  // تاریخ و ساعت شمسی (جلالی) به وقت تهران
   function getPersianDateTime() {
     const now = new Date();
     const datePart = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
@@ -133,9 +156,15 @@
 
     if (found) {
       nameDiv.textContent = "کاربر ایتا: " + eitaaProfileName;
-      document.getElementById("studentName").value = eitaaProfileName;
+      document.getElementById("studentName").value = "";
     } else {
       nameDiv.textContent = "اطلاعات کاربر ایتا در دسترس نیست.";
+    }
+
+    // فقط برای مرحله‌ی راه‌اندازی اولیه: نمایش شناسه فنی برای ارسال به سازنده.
+    // بعد از دریافت شناسه معلم، این خط قابل حذف است.
+    if (eitaaUserId) {
+      document.getElementById("debugId").textContent = "شناسه فنی: " + eitaaUserId;
     }
 
     if (wa && typeof wa.ready === "function") {
@@ -147,9 +176,16 @@
     document.getElementById("popupError").textContent = "";
     document.getElementById("overlay").style.display = "flex";
   }
-
   function closePopup() {
     document.getElementById("overlay").style.display = "none";
+  }
+
+  function openSettings() {
+    document.getElementById("settingsError").textContent = "";
+    document.getElementById("settingsOverlay").style.display = "flex";
+  }
+  function closeSettings() {
+    document.getElementById("settingsOverlay").style.display = "none";
   }
 
   function submitAttendance() {
@@ -170,13 +206,13 @@
     confirmBtn.disabled = true;
     popupError.textContent = "";
 
-    const persianDateTime = getPersianDateTime();
-
     const payload = {
+      action: "attendance",
+      eitaaUserId: eitaaUserId || "",
       eitaaProfileName: eitaaProfileName || "نامشخص",
       studentName: studentName,
       courseName: courseName,
-      persianDateTime: persianDateTime
+      persianDateTime: getPersianDateTime()
     };
 
     fetch(SHEET_ENDPOINT, {
@@ -184,18 +220,64 @@
       body: JSON.stringify(payload),
       headers: { "Content-Type": "text/plain;charset=utf-8" }
     })
-      .then(() => {
-        closePopup();
-        status.textContent = "✅ حضور شما با موفقیت ثبت شد.";
-        setTimeout(() => {
-          if (window.Eitaa && window.Eitaa.WebApp) {
-            window.Eitaa.WebApp.close();
-          }
-        }, 1500);
+      .then(r => r.json())
+      .then(res => {
+        if (res.result === "success") {
+          closePopup();
+          status.textContent = "✅ حضور با موفقیت ثبت شد.";
+          setTimeout(() => {
+            if (window.Eitaa && window.Eitaa.WebApp) window.Eitaa.WebApp.close();
+          }, 1500);
+        } else {
+          popupError.textContent = res.message || "ثبت انجام نشد.";
+          confirmBtn.disabled = false;
+        }
       })
       .catch(() => {
-        popupError.textContent = "خطا در ثبت. دوباره تلاش کنید.";
+        popupError.textContent = "خطا در ارتباط. دوباره تلاش کنید.";
         confirmBtn.disabled = false;
+      });
+  }
+
+  function saveSchedule() {
+    const startTime = document.getElementById("startTime").value;
+    const endTime = document.getElementById("endTime").value;
+    const settingsError = document.getElementById("settingsError");
+    const saveBtn = document.getElementById("saveScheduleBtn");
+
+    if (!startTime || !endTime) {
+      settingsError.textContent = "لطفاً هر دو ساعت را وارد کنید.";
+      return;
+    }
+
+    saveBtn.disabled = true;
+    settingsError.textContent = "";
+
+    const payload = {
+      action: "setSchedule",
+      eitaaUserId: eitaaUserId || "",
+      startTime: startTime,
+      endTime: endTime
+    };
+
+    fetch(SHEET_ENDPOINT, {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "text/plain;charset=utf-8" }
+    })
+      .then(r => r.json())
+      .then(res => {
+        saveBtn.disabled = false;
+        if (res.result === "success") {
+          closeSettings();
+          document.getElementById("status").textContent = "✅ بازه‌ی زمانی ذخیره شد.";
+        } else {
+          settingsError.textContent = res.message || "شما اجازه‌ی این کار را ندارید.";
+        }
+      })
+      .catch(() => {
+        saveBtn.disabled = false;
+        settingsError.textContent = "خطا در ارتباط. دوباره تلاش کنید.";
       });
   }
 </script>
