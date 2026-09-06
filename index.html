@@ -60,10 +60,12 @@
   }
   .popup h2 { font-size: 17px; margin: 0 0 16px; text-align: center; }
   .popup label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; }
-  .popup input {
+  .popup input, .popup select {
     width: 100%; padding: 10px; font-size: 15px;
     border-radius: 8px; border: 1px solid #ccc; margin-bottom: 14px;
     text-align: right;
+    font-family: Tahoma, sans-serif;
+    background: #fff;
   }
   .popup-buttons { display: flex; gap: 8px; }
   .popup-buttons button { font-size: 15px; padding: 10px; margin-bottom: 0; }
@@ -90,7 +92,11 @@
     <label for="studentName">نام و نام‌خانوادگی</label>
     <input id="studentName" type="text" placeholder="مثلاً علی رضایی">
     <label for="courseName">نام درس</label>
-    <input id="courseName" type="text" placeholder="مثلاً فرهنگ و هنر">
+    <select id="courseName">
+      <option value="" disabled selected>انتخاب کنید</option>
+      <option value="فرهنگ و هنر">فرهنگ و هنر</option>
+      <option value="ریاضی">ریاضی</option>
+    </select>
     <div class="popup-buttons">
       <button class="cancelBtn" onclick="closePopup()">انصراف</button>
       <button id="confirmBtn" onclick="submitAttendance()">ثبت</button>
@@ -116,7 +122,7 @@
 
 <script>
   // ===== تنظیمات =====
-  const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycby0cz9lJzWNvsYWxIxhdC1PgMmYKIJPV7ewHoXg5CA1f6CEeRE0toS955qvmVTfpI_nxg/exec";
+  const SHEET_ENDPOINT = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
 
   let eitaaProfileName = null;
   let eitaaUserId = null; // فقط پشت صحنه استفاده می‌شود، جایی نمایش داده نمی‌شود
