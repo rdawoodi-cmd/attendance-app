@@ -3,95 +3,154 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ورود به کلاس - حضور و غیاب</title>
+<title>کلاس من</title>
 <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
 <style>
   * { box-sizing: border-box; }
   body {
     font-family: Tahoma, sans-serif;
-    text-align: center;
-    padding: 40px 20px;
+    padding: 16px;
     background: #f4f6f8;
     margin: 0;
   }
   .card {
     background: #fff;
     border-radius: 16px;
-    padding: 30px 20px;
-    max-width: 360px;
-    margin: 0 auto;
+    padding: 20px 16px;
+    max-width: 420px;
+    margin: 0 auto 14px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
   }
-  h1 { font-size: 20px; margin-bottom: 10px; }
-  #userName { font-size: 15px; color: #555; margin-bottom: 20px; }
-  button {
-    font-size: 17px;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 10px;
-    background: #2e7d32;
-    color: #fff;
-    width: 100%;
-    cursor: pointer;
-    margin-bottom: 10px;
+  h1 { font-size: 19px; margin: 0 0 6px; text-align: center; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  #userName { font-size: 14px; color: #555; margin-bottom: 14px; text-align: center; }
+
+  .navRow { display: flex; gap: 6px; max-width: 420px; margin: 0 auto 14px; }
+  .navBtn {
+    flex: 1; padding: 10px 4px; font-size: 13px; border: none;
+    border-radius: 10px; background: #e0e0e0; color: #333; cursor: pointer;
   }
-  #settingsBtn { background: #455a64; }
+  .navBtn.active { background: #2e7d32; color: #fff; }
+
+  button {
+    font-size: 15px; padding: 10px 18px; border: none; border-radius: 10px;
+    background: #2e7d32; color: #fff; cursor: pointer; width: 100%; margin-bottom: 8px;
+  }
   button:disabled { background: #9e9e9e; }
-  #status { margin-top: 16px; font-size: 14px; color: #555; min-height: 20px; }
-  #debugId { margin-top: 24px; font-size: 11px; color: #bbb; }
+  .secondary { background: #455a64; }
+  .small { font-size: 13px; padding: 8px; }
+
+  input, select {
+    width: 100%; padding: 9px; font-size: 14px; border-radius: 8px;
+    border: 1px solid #ccc; margin-bottom: 10px; text-align: right;
+    font-family: Tahoma, sans-serif; background: #fff;
+  }
+  label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; }
+
+  .status { margin-top: 10px; font-size: 13px; color: #555; min-height: 18px; }
+  .error { color: #c62828; font-size: 13px; min-height: 18px; margin-bottom: 6px; }
+  #debugId { margin-top: 18px; font-size: 11px; color: #bbb; text-align: center; }
+
+  .listItem {
+    border: 1px solid #eee; border-radius: 10px; padding: 10px; margin-bottom: 8px; font-size: 13px;
+  }
+  .listItem a { color: #2e7d32; }
+  .listItem .meta { color: #888; font-size: 11px; margin-top: 4px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { border: 1px solid #eee; padding: 6px; text-align: right; }
+  th { background: #f0f0f0; }
+
+  .hidden { display: none !important; }
 
   #overlay, #settingsOverlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-    padding: 20px;
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    align-items: center; justify-content: center; z-index: 999; padding: 20px;
   }
-  .popup {
-    background: #fff;
-    border-radius: 16px;
-    padding: 24px 20px;
-    max-width: 340px;
-    width: 100%;
-    text-align: right;
-  }
-  .popup h2 { font-size: 17px; margin: 0 0 16px; text-align: center; }
-  .popup label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; }
-  .popup input, .popup select {
-    width: 100%; padding: 10px; font-size: 15px;
-    border-radius: 8px; border: 1px solid #ccc; margin-bottom: 14px;
-    text-align: right;
-    font-family: Tahoma, sans-serif;
-    background: #fff;
-  }
+  .popup { background: #fff; border-radius: 16px; padding: 22px 18px; max-width: 340px; width: 100%; text-align: right; max-height: 85vh; overflow-y: auto; }
+  .popup h2 { text-align: center; }
   .popup-buttons { display: flex; gap: 8px; }
-  .popup-buttons button { font-size: 15px; padding: 10px; margin-bottom: 0; }
+  .popup-buttons button { margin-bottom: 0; }
   .cancelBtn { background: #e0e0e0; color: #333; }
-  .popupError { color: #c62828; font-size: 13px; min-height: 18px; margin-bottom: 6px; text-align: center; }
 </style>
 </head>
 <body>
 
 <div class="card">
-  <h1>📋 ثبت حضور کلاس</h1>
+  <h1>🏫 کلاس من</h1>
   <div id="userName">در حال خواندن اطلاعات کاربر...</div>
-  <button id="openPopupBtn" onclick="openPopup()">✅ ثبت حضور</button>
-  <button id="settingsBtn" onclick="openSettings()">⚙️ تنظیم ساعت حضور و غیاب</button>
-  <div id="status"></div>
   <div id="debugId"></div>
 </div>
 
-<!-- پنجره ثبت حضور دانش‌آموز -->
+<div class="navRow">
+  <button class="navBtn active" onclick="switchTab('home')">حضور و غیاب</button>
+  <button class="navBtn" onclick="switchTab('materials')">تکالیف و تدریس</button>
+  <button class="navBtn hidden" id="teacherNavBtn" onclick="switchTab('teacher')">پنل معلم</button>
+</div>
+
+<!-- ===== تب حضور و غیاب ===== -->
+<div id="tab-home" class="card">
+  <button onclick="openPopup()">✅ ثبت حضور</button>
+  <button class="secondary" onclick="openSettings()">⚙️ تنظیم ساعت حضور و غیاب</button>
+  <div id="status" class="status"></div>
+</div>
+
+<!-- ===== تب تکالیف و تدریس ===== -->
+<div id="tab-materials" class="card hidden">
+  <h2>📚 فایل‌های تدریس</h2>
+  <div id="materialsList">در حال بارگذاری...</div>
+
+  <h2 style="margin-top:20px">📤 ارسال تکلیف من</h2>
+  <div id="hwError" class="error"></div>
+  <label>نام و نام‌خانوادگی</label>
+  <input id="hwStudentName" type="text" placeholder="مثلاً علی رضایی">
+  <label>نام درس</label>
+  <select id="hwCourseName">
+    <option value="" disabled selected>انتخاب کنید</option>
+    <option value="فرهنگ و هنر">فرهنگ و هنر</option>
+    <option value="ریاضی">ریاضی</option>
+  </select>
+  <label>فایل تکلیف</label>
+  <input id="hwFile" type="file">
+  <button id="hwSubmitBtn" onclick="submitHomework()">ارسال تکلیف</button>
+
+  <h2 style="margin-top:20px">📋 کارنامه‌ی من</h2>
+  <div id="myStatus">در حال بارگذاری...</div>
+</div>
+
+<!-- ===== تب پنل معلم ===== -->
+<div id="tab-teacher" class="card hidden">
+  <h2>📤 آپلود فایل تدریس/تکلیف</h2>
+  <div id="matError" class="error"></div>
+  <label>نام درس</label>
+  <select id="matCourseName">
+    <option value="" disabled selected>انتخاب کنید</option>
+    <option value="فرهنگ و هنر">فرهنگ و هنر</option>
+    <option value="ریاضی">ریاضی</option>
+  </select>
+  <label>عنوان</label>
+  <input id="matTitle" type="text" placeholder="مثلاً جزوه جلسه سوم">
+  <label>فایل</label>
+  <input id="matFile" type="file">
+  <button onclick="uploadMaterial()">آپلود</button>
+
+  <h2 style="margin-top:20px">📋 لیست حضور و غیاب (اخیر)</h2>
+  <button class="secondary small" onclick="loadTeacherAttendance()">به‌روزرسانی لیست</button>
+  <div id="teacherAttendance"></div>
+
+  <h2 style="margin-top:20px">📥 تکالیف ارسالی و ثبت نمره</h2>
+  <button class="secondary small" onclick="loadTeacherHomework()">به‌روزرسانی لیست</button>
+  <div id="teacherHomework"></div>
+</div>
+
+<!-- پنجره ثبت حضور -->
 <div id="overlay">
   <div class="popup">
     <h2>ثبت حضور</h2>
-    <div id="popupError" class="popupError"></div>
-    <label for="studentName">نام و نام‌خانوادگی</label>
+    <div id="popupError" class="error"></div>
+    <label>نام و نام‌خانوادگی</label>
     <input id="studentName" type="text" placeholder="مثلاً علی رضایی">
-    <label for="courseName">نام درس</label>
+    <label>نام درس</label>
     <select id="courseName">
       <option value="" disabled selected>انتخاب کنید</option>
       <option value="فرهنگ و هنر">فرهنگ و هنر</option>
@@ -104,14 +163,14 @@
   </div>
 </div>
 
-<!-- پنجره تنظیم ساعت (فقط معلم) -->
+<!-- پنجره تنظیم ساعت -->
 <div id="settingsOverlay">
   <div class="popup">
     <h2>تنظیم بازه‌ی حضور و غیاب</h2>
-    <div id="settingsError" class="popupError"></div>
-    <label for="startTime">ساعت شروع</label>
+    <div id="settingsError" class="error"></div>
+    <label>ساعت شروع</label>
     <input id="startTime" type="time">
-    <label for="endTime">ساعت پایان</label>
+    <label>ساعت پایان</label>
     <input id="endTime" type="time">
     <div class="popup-buttons">
       <button class="cancelBtn" onclick="closeSettings()">انصراف</button>
@@ -121,11 +180,375 @@
 </div>
 
 <script>
-  // ===== تنظیمات =====
+  const SHEET_ENDPOINT = "<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>کلاس من</title>
+<script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: Tahoma, sans-serif;
+    padding: 16px;
+    background: #f4f6f8;
+    margin: 0;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 16px;
+    max-width: 420px;
+    margin: 0 auto 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+  h1 { font-size: 19px; margin: 0 0 6px; text-align: center; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  #userName { font-size: 14px; color: #555; margin-bottom: 14px; text-align: center; }
+
+  .navRow { display: flex; gap: 6px; max-width: 420px; margin: 0 auto 14px; }
+  .navBtn {
+    flex: 1; padding: 10px 4px; font-size: 13px; border: none;
+    border-radius: 10px; background: #e0e0e0; color: #333; cursor: pointer;
+  }
+  .navBtn.active { background: #2e7d32; color: #fff; }
+
+  button {
+    font-size: 15px; padding: 10px 18px; border: none; border-radius: 10px;
+    background: #2e7d32; color: #fff; cursor: pointer; width: 100%; margin-bottom: 8px;
+  }
+  button:disabled { background: #9e9e9e; }
+  .secondary { background: #455a64; }
+  .small { font-size: 13px; padding: 8px; }
+
+  input, select {
+    width: 100%; padding: 9px; font-size: 14px; border-radius: 8px;
+    border: 1px solid #ccc; margin-bottom: 10px; text-align: right;
+    font-family: Tahoma, sans-serif; background: #fff;
+  }
+  label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; }
+
+  .status { margin-top: 10px; font-size: 13px; color: #555; min-height: 18px; }
+  .error { color: #c62828; font-size: 13px; min-height: 18px; margin-bottom: 6px; }
+  #debugId { margin-top: 18px; font-size: 11px; color: #bbb; text-align: center; }
+
+  .listItem {
+    border: 1px solid #eee; border-radius: 10px; padding: 10px; margin-bottom: 8px; font-size: 13px;
+  }
+  .listItem a { color: #2e7d32; }
+  .listItem .meta { color: #888; font-size: 11px; margin-top: 4px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { border: 1px solid #eee; padding: 6px; text-align: right; }
+  th { background: #f0f0f0; }
+
+  .hidden { display: none !important; }
+
+  #overlay, #settingsOverlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    align-items: center; justify-content: center; z-index: 999; padding: 20px;
+  }
+  .popup { background: #fff; border-radius: 16px; padding: 22px 18px; max-width: 340px; width: 100%; text-align: right; max-height: 85vh; overflow-y: auto; }
+  .popup h2 { text-align: center; }
+  .popup-buttons { display: flex; gap: 8px; }
+  .popup-buttons button { margin-bottom: 0; }
+  .cancelBtn { background: #e0e0e0; color: #333; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>🏫 کلاس من</h1>
+  <div id="userName">در حال خواندن اطلاعات کاربر...</div>
+  <div id="debugId"></div>
+</div>
+
+<div class="navRow">
+  <button class="navBtn active" onclick="switchTab('home')">حضور و غیاب</button>
+  <button class="navBtn" onclick="switchTab('materials')">تکالیف و تدریس</button>
+  <button class="navBtn hidden" id="teacherNavBtn" onclick="switchTab('teacher')">پنل معلم</button>
+</div>
+
+<!-- ===== تب حضور و غیاب ===== -->
+<div id="tab-home" class="card">
+  <button onclick="openPopup()">✅ ثبت حضور</button>
+  <button class="secondary" onclick="openSettings()">⚙️ تنظیم ساعت حضور و غیاب</button>
+  <div id="status" class="status"></div>
+</div>
+
+<!-- ===== تب تکالیف و تدریس ===== -->
+<div id="tab-materials" class="card hidden">
+  <h2>📚 فایل‌های تدریس</h2>
+  <div id="materialsList">در حال بارگذاری...</div>
+
+  <h2 style="margin-top:20px">📤 ارسال تکلیف من</h2>
+  <div id="hwError" class="error"></div>
+  <label>نام و نام‌خانوادگی</label>
+  <input id="hwStudentName" type="text" placeholder="مثلاً علی رضایی">
+  <label>نام درس</label>
+  <select id="hwCourseName">
+    <option value="" disabled selected>انتخاب کنید</option>
+    <option value="فرهنگ و هنر">فرهنگ و هنر</option>
+    <option value="ریاضی">ریاضی</option>
+  </select>
+  <label>فایل تکلیف</label>
+  <input id="hwFile" type="file">
+  <button id="hwSubmitBtn" onclick="submitHomework()">ارسال تکلیف</button>
+
+  <h2 style="margin-top:20px">📋 کارنامه‌ی من</h2>
+  <div id="myStatus">در حال بارگذاری...</div>
+</div>
+
+<!-- ===== تب پنل معلم ===== -->
+<div id="tab-teacher" class="card hidden">
+  <h2>📤 آپلود فایل تدریس/تکلیف</h2>
+  <div id="matError" class="error"></div>
+  <label>نام درس</label>
+  <select id="matCourseName">
+    <option value="" disabled selected>انتخاب کنید</option>
+    <option value="فرهنگ و هنر">فرهنگ و هنر</option>
+    <option value="ریاضی">ریاضی</option>
+  </select>
+  <label>عنوان</label>
+  <input id="matTitle" type="text" placeholder="مثلاً جزوه جلسه سوم">
+  <label>فایل</label>
+  <input id="matFile" type="file">
+  <button onclick="uploadMaterial()">آپلود</button>
+
+  <h2 style="margin-top:20px">📋 لیست حضور و غیاب (اخیر)</h2>
+  <button class="secondary small" onclick="loadTeacherAttendance()">به‌روزرسانی لیست</button>
+  <div id="teacherAttendance"></div>
+
+  <h2 style="margin-top:20px">📥 تکالیف ارسالی و ثبت نمره</h2>
+  <button class="secondary small" onclick="loadTeacherHomework()">به‌روزرسانی لیست</button>
+  <div id="teacherHomework"></div>
+</div>
+
+<!-- پنجره ثبت حضور -->
+<div id="overlay">
+  <div class="popup">
+    <h2>ثبت حضور</h2>
+    <div id="popupError" class="error"></div>
+    <label>نام و نام‌خانوادگی</label>
+    <input id="studentName" type="text" placeholder="مثلاً علی رضایی">
+    <label>نام درس</label>
+    <select id="courseName">
+      <option value="" disabled selected>انتخاب کنید</option>
+      <option value="فرهنگ و هنر">فرهنگ و هنر</option>
+      <option value="ریاضی">ریاضی</option>
+    </select>
+    <div class="popup-buttons">
+      <button class="cancelBtn" onclick="closePopup()">انصراف</button>
+      <button id="confirmBtn" onclick="submitAttendance()">ثبت</button>
+    </div>
+  </div>
+</div>
+
+<!-- پنجره تنظیم ساعت -->
+<div id="settingsOverlay">
+  <div class="popup">
+    <h2>تنظیم بازه‌ی حضور و غیاب</h2>
+    <div id="settingsError" class="error"></div>
+    <label>ساعت شروع</label>
+    <input id="startTime" type="time">
+    <label>ساعت پایان</label>
+    <input id="endTime" type="time">
+    <div class="popup-buttons">
+      <button class="cancelBtn" onclick="closeSettings()">انصراف</button>
+      <button id="saveScheduleBtn" onclick="saveSchedule()">ذخیره</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SHEET_ENDPOINT = "<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>کلاس من</title>
+<script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: Tahoma, sans-serif;
+    padding: 16px;
+    background: #f4f6f8;
+    margin: 0;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 16px;
+    max-width: 420px;
+    margin: 0 auto 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+  h1 { font-size: 19px; margin: 0 0 6px; text-align: center; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  #userName { font-size: 14px; color: #555; margin-bottom: 14px; text-align: center; }
+
+  .navRow { display: flex; gap: 6px; max-width: 420px; margin: 0 auto 14px; }
+  .navBtn {
+    flex: 1; padding: 10px 4px; font-size: 13px; border: none;
+    border-radius: 10px; background: #e0e0e0; color: #333; cursor: pointer;
+  }
+  .navBtn.active { background: #2e7d32; color: #fff; }
+
+  button {
+    font-size: 15px; padding: 10px 18px; border: none; border-radius: 10px;
+    background: #2e7d32; color: #fff; cursor: pointer; width: 100%; margin-bottom: 8px;
+  }
+  button:disabled { background: #9e9e9e; }
+  .secondary { background: #455a64; }
+  .small { font-size: 13px; padding: 8px; }
+
+  input, select {
+    width: 100%; padding: 9px; font-size: 14px; border-radius: 8px;
+    border: 1px solid #ccc; margin-bottom: 10px; text-align: right;
+    font-family: Tahoma, sans-serif; background: #fff;
+  }
+  label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; }
+
+  .status { margin-top: 10px; font-size: 13px; color: #555; min-height: 18px; }
+  .error { color: #c62828; font-size: 13px; min-height: 18px; margin-bottom: 6px; }
+  #debugId { margin-top: 18px; font-size: 11px; color: #bbb; text-align: center; }
+
+  .listItem {
+    border: 1px solid #eee; border-radius: 10px; padding: 10px; margin-bottom: 8px; font-size: 13px;
+  }
+  .listItem a { color: #2e7d32; }
+  .listItem .meta { color: #888; font-size: 11px; margin-top: 4px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { border: 1px solid #eee; padding: 6px; text-align: right; }
+  th { background: #f0f0f0; }
+
+  .hidden { display: none !important; }
+
+  #overlay, #settingsOverlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    align-items: center; justify-content: center; z-index: 999; padding: 20px;
+  }
+  .popup { background: #fff; border-radius: 16px; padding: 22px 18px; max-width: 340px; width: 100%; text-align: right; max-height: 85vh; overflow-y: auto; }
+  .popup h2 { text-align: center; }
+  .popup-buttons { display: flex; gap: 8px; }
+  .popup-buttons button { margin-bottom: 0; }
+  .cancelBtn { background: #e0e0e0; color: #333; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>🏫 کلاس من</h1>
+  <div id="userName">در حال خواندن اطلاعات کاربر...</div>
+  <div id="debugId"></div>
+</div>
+
+<div class="navRow">
+  <button class="navBtn active" onclick="switchTab('home')">حضور و غیاب</button>
+  <button class="navBtn" onclick="switchTab('materials')">تکالیف و تدریس</button>
+  <button class="navBtn hidden" id="teacherNavBtn" onclick="switchTab('teacher')">پنل معلم</button>
+</div>
+
+<!-- ===== تب حضور و غیاب ===== -->
+<div id="tab-home" class="card">
+  <button onclick="openPopup()">✅ ثبت حضور</button>
+  <button class="secondary" onclick="openSettings()">⚙️ تنظیم ساعت حضور و غیاب</button>
+  <div id="status" class="status"></div>
+</div>
+
+<!-- ===== تب تکالیف و تدریس ===== -->
+<div id="tab-materials" class="card hidden">
+  <h2>📚 فایل‌های تدریس</h2>
+  <div id="materialsList">در حال بارگذاری...</div>
+
+  <h2 style="margin-top:20px">📤 ارسال تکلیف من</h2>
+  <div id="hwError" class="error"></div>
+  <label>نام و نام‌خانوادگی</label>
+  <input id="hwStudentName" type="text" placeholder="مثلاً علی رضایی">
+  <label>نام درس</label>
+  <select id="hwCourseName">
+    <option value="" disabled selected>انتخاب کنید</option>
+    <option value="فرهنگ و هنر">فرهنگ و هنر</option>
+    <option value="ریاضی">ریاضی</option>
+  </select>
+  <label>فایل تکلیف</label>
+  <input id="hwFile" type="file">
+  <button id="hwSubmitBtn" onclick="submitHomework()">ارسال تکلیف</button>
+
+  <h2 style="margin-top:20px">📋 کارنامه‌ی من</h2>
+  <div id="myStatus">در حال بارگذاری...</div>
+</div>
+
+<!-- ===== تب پنل معلم ===== -->
+<div id="tab-teacher" class="card hidden">
+  <h2>📤 آپلود فایل تدریس/تکلیف</h2>
+  <div id="matError" class="error"></div>
+  <label>نام درس</label>
+  <select id="matCourseName">
+    <option value="" disabled selected>انتخاب کنید</option>
+    <option value="فرهنگ و هنر">فرهنگ و هنر</option>
+    <option value="ریاضی">ریاضی</option>
+  </select>
+  <label>عنوان</label>
+  <input id="matTitle" type="text" placeholder="مثلاً جزوه جلسه سوم">
+  <label>فایل</label>
+  <input id="matFile" type="file">
+  <button onclick="uploadMaterial()">آپلود</button>
+
+  <h2 style="margin-top:20px">📋 لیست حضور و غیاب (اخیر)</h2>
+  <button class="secondary small" onclick="loadTeacherAttendance()">به‌روزرسانی لیست</button>
+  <div id="teacherAttendance"></div>
+
+  <h2 style="margin-top:20px">📥 تکالیف ارسالی و ثبت نمره</h2>
+  <button class="secondary small" onclick="loadTeacherHomework()">به‌روزرسانی لیست</button>
+  <div id="teacherHomework"></div>
+</div>
+
+<!-- پنجره ثبت حضور -->
+<div id="overlay">
+  <div class="popup">
+    <h2>ثبت حضور</h2>
+    <div id="popupError" class="error"></div>
+    <label>نام و نام‌خانوادگی</label>
+    <input id="studentName" type="text" placeholder="مثلاً علی رضایی">
+    <label>نام درس</label>
+    <select id="courseName">
+      <option value="" disabled selected>انتخاب کنید</option>
+      <option value="فرهنگ و هنر">فرهنگ و هنر</option>
+      <option value="ریاضی">ریاضی</option>
+    </select>
+    <div class="popup-buttons">
+      <button class="cancelBtn" onclick="closePopup()">انصراف</button>
+      <button id="confirmBtn" onclick="submitAttendance()">ثبت</button>
+    </div>
+  </div>
+</div>
+
+<!-- پنجره تنظیم ساعت -->
+<div id="settingsOverlay">
+  <div class="popup">
+    <h2>تنظیم بازه‌ی حضور و غیاب</h2>
+    <div id="settingsError" class="error"></div>
+    <label>ساعت شروع</label>
+    <input id="startTime" type="time">
+    <label>ساعت پایان</label>
+    <input id="endTime" type="time">
+    <div class="popup-buttons">
+      <button class="cancelBtn" onclick="closeSettings()">انصراف</button>
+      <button id="saveScheduleBtn" onclick="saveSchedule()">ذخیره</button>
+    </div>
+  </div>
+</div>
+
+<script>
   const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbywuKVAabcD4RbN9zBj7A5uk6YROV4hnzUpclPCw4ZvPSrh5mPxk_gIFf2ZcLfYvY1pzg/exec";
+  const TEACHER_EITAA_ID = "42407081";
 
   let eitaaProfileName = null;
-  let eitaaUserId = null; // فقط پشت صحنه استفاده می‌شود، جایی نمایش داده نمی‌شود
+  let eitaaUserId = null;
 
   function tryGetEitaaUser() {
     try {
@@ -136,113 +559,90 @@
         eitaaUserId = u.id || null;
         return !!eitaaProfileName;
       }
-    } catch (e) {
-      console.log("خطا در خواندن اطلاعات کاربر:", e);
-    }
+    } catch (e) { console.log(e); }
     return false;
   }
 
   function getPersianDateTime() {
     const now = new Date();
-    const datePart = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
-      timeZone: "Asia/Tehran",
-      year: "numeric", month: "2-digit", day: "2-digit"
-    }).format(now);
-    const timePart = new Intl.DateTimeFormat("fa-IR", {
-      timeZone: "Asia/Tehran",
-      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
-    }).format(now);
-    return datePart + " - " + timePart;
+    const d = new Intl.DateTimeFormat("fa-IR-u-ca-persian", { timeZone: "Asia/Tehran", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
+    const t = new Intl.DateTimeFormat("fa-IR", { timeZone: "Asia/Tehran", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(now);
+    return d + " - " + t;
+  }
+
+  function callApi(payload) {
+    return fetch(SHEET_ENDPOINT, {
+      method: "POST", body: JSON.stringify(payload),
+      headers: { "Content-Type": "text/plain;charset=utf-8" }
+    }).then(r => r.json());
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result.split(",")[1]);
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
+
+  const MAX_FILE_MB = 8;
+  function checkFileSize(file) {
+    return file.size <= MAX_FILE_MB * 1024 * 1024;
   }
 
   window.onload = function () {
     const wa = window.Eitaa && window.Eitaa.WebApp;
     const found = tryGetEitaaUser();
     const nameDiv = document.getElementById("userName");
-
     if (found) {
       nameDiv.textContent = "کاربر ایتا: " + eitaaProfileName;
-      document.getElementById("studentName").value = "";
     } else {
       nameDiv.textContent = "اطلاعات کاربر ایتا در دسترس نیست.";
     }
-
-    // فقط برای مرحله‌ی راه‌اندازی اولیه: نمایش شناسه فنی برای ارسال به سازنده.
-    // بعد از دریافت شناسه معلم، این خط قابل حذف است.
     if (eitaaUserId) {
       document.getElementById("debugId").textContent = "شناسه فنی: " + eitaaUserId;
+      if (String(eitaaUserId) === String(TEACHER_EITAA_ID)) {
+        document.getElementById("teacherNavBtn").classList.remove("hidden");
+      }
     }
-
-    if (wa && typeof wa.ready === "function") {
-      wa.ready();
-    }
+    loadMaterials();
+    loadMyStatus();
+    if (wa && typeof wa.ready === "function") wa.ready();
   };
 
-  function openPopup() {
-    document.getElementById("popupError").textContent = "";
-    document.getElementById("overlay").style.display = "flex";
-  }
-  function closePopup() {
-    document.getElementById("overlay").style.display = "none";
+  function switchTab(tab) {
+    ["home", "materials", "teacher"].forEach(t => {
+      document.getElementById("tab-" + t).classList.toggle("hidden", t !== tab);
+    });
+    document.querySelectorAll(".navBtn").forEach(b => b.classList.remove("active"));
+    event.target.classList.add("active");
+    if (tab === "teacher") { loadTeacherAttendance(); loadTeacherHomework(); }
   }
 
-  function openSettings() {
-    document.getElementById("settingsError").textContent = "";
-    document.getElementById("settingsOverlay").style.display = "flex";
-  }
-  function closeSettings() {
-    document.getElementById("settingsOverlay").style.display = "none";
-  }
+  // ---------- حضور و غیاب ----------
+  function openPopup() { document.getElementById("popupError").textContent = ""; document.getElementById("overlay").style.display = "flex"; }
+  function closePopup() { document.getElementById("overlay").style.display = "none"; }
+  function openSettings() { document.getElementById("settingsError").textContent = ""; document.getElementById("settingsOverlay").style.display = "flex"; }
+  function closeSettings() { document.getElementById("settingsOverlay").style.display = "none"; }
 
   function submitAttendance() {
-    const nameInput = document.getElementById("studentName");
-    const courseInput = document.getElementById("courseName");
+    const studentName = document.getElementById("studentName").value.trim();
+    const courseName = document.getElementById("courseName").value;
     const popupError = document.getElementById("popupError");
     const confirmBtn = document.getElementById("confirmBtn");
-    const status = document.getElementById("status");
-
-    const studentName = nameInput.value.trim();
-    const courseName = courseInput.value.trim();
-
-    if (!studentName || !courseName) {
-      popupError.textContent = "لطفاً هر دو فیلد را پر کنید.";
-      return;
-    }
-
-    confirmBtn.disabled = true;
-    popupError.textContent = "";
-
-    const payload = {
-      action: "attendance",
-      eitaaUserId: eitaaUserId || "",
-      eitaaProfileName: eitaaProfileName || "نامشخص",
-      studentName: studentName,
-      courseName: courseName,
-      persianDateTime: getPersianDateTime()
-    };
-
-    fetch(SHEET_ENDPOINT, {
-      method: "POST",
-      body: JSON.stringify(payload),
-      headers: { "Content-Type": "text/plain;charset=utf-8" }
-    })
-      .then(r => r.json())
-      .then(res => {
-        if (res.result === "success") {
-          closePopup();
-          status.textContent = "✅ حضور با موفقیت ثبت شد.";
-          setTimeout(() => {
-            if (window.Eitaa && window.Eitaa.WebApp) window.Eitaa.WebApp.close();
-          }, 1500);
-        } else {
-          popupError.textContent = res.message || "ثبت انجام نشد.";
-          confirmBtn.disabled = false;
-        }
-      })
-      .catch(() => {
-        popupError.textContent = "خطا در ارتباط. دوباره تلاش کنید.";
-        confirmBtn.disabled = false;
-      });
+    if (!studentName || !courseName) { popupError.textContent = "لطفاً هر دو فیلد را پر کنید."; return; }
+    confirmBtn.disabled = true; popupError.textContent = "";
+    callApi({
+      action: "attendance", eitaaUserId: eitaaUserId || "", eitaaProfileName: eitaaProfileName || "نامشخص",
+      studentName, courseName, persianDateTime: getPersianDateTime()
+    }).then(res => {
+      confirmBtn.disabled = false;
+      if (res.result === "success") {
+        closePopup();
+        document.getElementById("status").textContent = "✅ حضور با موفقیت ثبت شد.";
+      } else { popupError.textContent = res.message || "ثبت انجام نشد."; }
+    }).catch(() => { confirmBtn.disabled = false; popupError.textContent = "خطا در ارتباط."; });
   }
 
   function saveSchedule() {
@@ -250,41 +650,620 @@
     const endTime = document.getElementById("endTime").value;
     const settingsError = document.getElementById("settingsError");
     const saveBtn = document.getElementById("saveScheduleBtn");
+    if (!startTime || !endTime) { settingsError.textContent = "لطفاً هر دو ساعت را وارد کنید."; return; }
+    saveBtn.disabled = true; settingsError.textContent = "";
+    callApi({ action: "setSchedule", eitaaUserId: eitaaUserId || "", startTime, endTime }).then(res => {
+      saveBtn.disabled = false;
+      if (res.result === "success") { closeSettings(); document.getElementById("status").textContent = "✅ بازه‌ی زمانی ذخیره شد."; }
+      else { settingsError.textContent = res.message || "شما اجازه‌ی این کار را ندارید."; }
+    }).catch(() => { saveBtn.disabled = false; settingsError.textContent = "خطا در ارتباط."; });
+  }
 
-    if (!startTime || !endTime) {
-      settingsError.textContent = "لطفاً هر دو ساعت را وارد کنید.";
-      return;
-    }
+  // ---------- تکالیف و تدریس ----------
+  function loadMaterials() {
+    callApi({ action: "listMaterials" }).then(res => {
+      const box = document.getElementById("materialsList");
+      if (!res.items || res.items.length === 0) { box.textContent = "هنوز فایلی آپلود نشده."; return; }
+      box.innerHTML = res.items.map(m =>
+        '<div class="listItem"><b>' + m.title + '</b> (' + m.course + ')<br>' +
+        '<a href="' + m.fileUrl + '" target="_blank">دانلود فایل</a>' +
+        '<div class="meta">' + m.timestamp + '</div></div>'
+      ).join("");
+    }).catch(() => { document.getElementById("materialsList").textContent = "خطا در بارگذاری."; });
+  }
 
-    saveBtn.disabled = true;
-    settingsError.textContent = "";
+  function submitHomework() {
+    const studentName = document.getElementById("hwStudentName").value.trim();
+    const courseName = document.getElementById("hwCourseName").value;
+    const fileInput = document.getElementById("hwFile");
+    const err = document.getElementById("hwError");
+    const btn = document.getElementById("hwSubmitBtn");
+    err.textContent = "";
+    if (!studentName || !courseName) { err.textContent = "لطفاً نام و درس را وارد کنید."; return; }
+    if (!fileInput.files[0]) { err.textContent = "لطفاً یک فایل انتخاب کنید."; return; }
+    const file = fileInput.files[0];
+    if (!checkFileSize(file)) { err.textContent = "حجم فایل باید کمتر از " + MAX_FILE_MB + " مگابایت باشد."; return; }
 
-    const payload = {
-      action: "setSchedule",
-      eitaaUserId: eitaaUserId || "",
-      startTime: startTime,
-      endTime: endTime
-    };
-
-    fetch(SHEET_ENDPOINT, {
-      method: "POST",
-      body: JSON.stringify(payload),
-      headers: { "Content-Type": "text/plain;charset=utf-8" }
-    })
-      .then(r => r.json())
-      .then(res => {
-        saveBtn.disabled = false;
-        if (res.result === "success") {
-          closeSettings();
-          document.getElementById("status").textContent = "✅ بازه‌ی زمانی ذخیره شد.";
-        } else {
-          settingsError.textContent = res.message || "شما اجازه‌ی این کار را ندارید.";
-        }
-      })
-      .catch(() => {
-        saveBtn.disabled = false;
-        settingsError.textContent = "خطا در ارتباط. دوباره تلاش کنید.";
+    btn.disabled = true;
+    fileToBase64(file).then(base64 => {
+      return callApi({
+        action: "submitHomework", eitaaUserId: eitaaUserId || "", eitaaProfileName: eitaaProfileName || "نامشخص",
+        studentName, courseName, fileBase64: base64, fileName: file.name, mimeType: file.type || "application/octet-stream",
+        persianDateTime: getPersianDateTime()
       });
+    }).then(res => {
+      btn.disabled = false;
+      if (res.result === "success") {
+        err.textContent = ""; document.getElementById("hwFile").value = "";
+        loadMyStatus();
+        alert("✅ تکلیف با موفقیت ارسال شد.");
+      } else { err.textContent = res.message || "ارسال ناموفق بود."; }
+    }).catch(() => { btn.disabled = false; err.textContent = "خطا در ارتباط یا حجم فایل زیاد است."; });
+  }
+
+  function loadMyStatus() {
+    if (!eitaaUserId) { document.getElementById("myStatus").textContent = "ابتدا باید از ایتا وارد شوید."; return; }
+    callApi({ action: "getMyStatus", eitaaUserId }).then(res => {
+      const box = document.getElementById("myStatus");
+      let html = "<div class='listItem'>تعداد حضور ثبت‌شده: " + (res.attendanceCount || 0) + "</div>";
+      if (res.homework && res.homework.length) {
+        html += res.homework.map(h =>
+          '<div class="listItem">' + h.course + ' - ' + h.fileName +
+          '<div class="meta">' + h.timestamp + (h.grade ? (' | نمره: ' + h.grade) : ' | هنوز نمره داده نشده') +
+          (h.note ? (' | یادداشت: ' + h.note) : '') + '</div></div>'
+        ).join("");
+      } else { html += "<div class='listItem'>هنوز تکلیفی ارسال نکرده‌اید.</div>"; }
+      box.innerHTML = html;
+    }).catch(() => { document.getElementById("myStatus").textContent = "خطا در بارگذاری."; });
+  }
+
+  // ---------- پنل معلم ----------
+  function uploadMaterial() {
+    const courseName = document.getElementById("matCourseName").value;
+    const title = document.getElementById("matTitle").value.trim();
+    const fileInput = document.getElementById("matFile");
+    const err = document.getElementById("matError");
+    err.textContent = "";
+    if (!courseName || !title) { err.textContent = "لطفاً درس و عنوان را وارد کنید."; return; }
+    if (!fileInput.files[0]) { err.textContent = "لطفاً یک فایل انتخاب کنید."; return; }
+    const file = fileInput.files[0];
+    if (!checkFileSize(file)) { err.textContent = "حجم فایل باید کمتر از " + MAX_FILE_MB + " مگابایت باشد."; return; }
+
+    fileToBase64(file).then(base64 => {
+      return callApi({
+        action: "uploadMaterial", eitaaUserId: eitaaUserId || "", courseName, title,
+        fileBase64: base64, fileName: file.name, mimeType: file.type || "application/octet-stream",
+        persianDateTime: getPersianDateTime()
+      });
+    }).then(res => {
+      if (res.result === "success") {
+        document.getElementById("matTitle").value = ""; document.getElementById("matFile").value = "";
+        loadMaterials();
+        alert("✅ فایل آپلود شد.");
+      } else { err.textContent = res.message || "آپلود ناموفق بود."; }
+    }).catch(() => { err.textContent = "خطا در ارتباط یا حجم فایل زیاد است."; });
+  }
+
+  function loadTeacherAttendance() {
+    callApi({ action: "teacherListAttendance", eitaaUserId: eitaaUserId || "" }).then(res => {
+      const box = document.getElementById("teacherAttendance");
+      if (res.result !== "success") { box.textContent = res.message || "دسترسی ندارید."; return; }
+      if (!res.rows || res.rows.length === 0) { box.textContent = "موردی ثبت نشده."; return; }
+      let html = "<table><tr><th>پروفایل</th><th>نام</th><th>درس</th><th>زمان</th></tr>";
+      res.rows.forEach(r => { html += "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td><td>" + r[2] + "</td><td>" + r[3] + "</td></tr>"; });
+      html += "</table>";
+      box.innerHTML = html;
+    }).catch(() => { document.getElementById("teacherAttendance").textContent = "خطا در بارگذاری."; });
+  }
+
+  function loadTeacherHomework() {
+    callApi({ action: "teacherListHomework", eitaaUserId: eitaaUserId || "" }).then(res => {
+      const box = document.getElementById("teacherHomework");
+      if (res.result !== "success") { box.textContent = res.message || "دسترسی ندارید."; return; }
+      if (!res.items || res.items.length === 0) { box.textContent = "تکلیفی ارسال نشده."; return; }
+      box.innerHTML = res.items.map(h =>
+        '<div class="listItem">' +
+        '<b>' + h.studentName + '</b> (' + h.profile + ') - ' + h.course + '<br>' +
+        '<a href="' + h.fileUrl + '" target="_blank">مشاهده فایل</a>' +
+        '<div class="meta">' + h.timestamp + '</div>' +
+        '<input type="text" placeholder="نمره" id="grade_' + h.id + '" style="width:70px;display:inline-block;margin-top:6px">' +
+        '<input type="text" placeholder="یادداشت" id="note_' + h.id + '" style="width:120px;display:inline-block">' +
+        '<button class="small" style="width:auto;display:inline-block;margin-right:6px" onclick="saveGrade(\'' + h.id + '\')">ثبت نمره</button>' +
+        '</div>'
+      ).join("");
+    }).catch(() => { document.getElementById("teacherHomework").textContent = "خطا در بارگذاری."; });
+  }
+
+  function saveGrade(id) {
+    const grade = document.getElementById("grade_" + id).value.trim();
+    const note = document.getElementById("note_" + id).value.trim();
+    if (!grade) { alert("لطفاً نمره را وارد کنید."); return; }
+    callApi({ action: "setGrade", eitaaUserId: eitaaUserId || "", submissionId: id, grade, note }).then(res => {
+      if (res.result === "success") { alert("✅ نمره ثبت شد."); loadTeacherHomework(); }
+      else { alert(res.message || "ثبت نمره ناموفق بود."); }
+    }).catch(() => alert("خطا در ارتباط."));
+  }
+</script>
+</body>
+</html>";
+  const TEACHER_EITAA_ID = "42407081";
+
+  let eitaaProfileName = null;
+  let eitaaUserId = null;
+
+  function tryGetEitaaUser() {
+    try {
+      const wa = window.Eitaa && window.Eitaa.WebApp;
+      if (wa && wa.initDataUnsafe && wa.initDataUnsafe.user) {
+        const u = wa.initDataUnsafe.user;
+        eitaaProfileName = [u.first_name, u.last_name].filter(Boolean).join(" ") || null;
+        eitaaUserId = u.id || null;
+        return !!eitaaProfileName;
+      }
+    } catch (e) { console.log(e); }
+    return false;
+  }
+
+  function getPersianDateTime() {
+    const now = new Date();
+    const d = new Intl.DateTimeFormat("fa-IR-u-ca-persian", { timeZone: "Asia/Tehran", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
+    const t = new Intl.DateTimeFormat("fa-IR", { timeZone: "Asia/Tehran", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(now);
+    return d + " - " + t;
+  }
+
+  function callApi(payload) {
+    return fetch(SHEET_ENDPOINT, {
+      method: "POST", body: JSON.stringify(payload),
+      headers: { "Content-Type": "text/plain;charset=utf-8" }
+    }).then(r => r.json());
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result.split(",")[1]);
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
+
+  const MAX_FILE_MB = 8;
+  function checkFileSize(file) {
+    return file.size <= MAX_FILE_MB * 1024 * 1024;
+  }
+
+  window.onload = function () {
+    const wa = window.Eitaa && window.Eitaa.WebApp;
+    const found = tryGetEitaaUser();
+    const nameDiv = document.getElementById("userName");
+    if (found) {
+      nameDiv.textContent = "کاربر ایتا: " + eitaaProfileName;
+    } else {
+      nameDiv.textContent = "اطلاعات کاربر ایتا در دسترس نیست.";
+    }
+    if (eitaaUserId) {
+      document.getElementById("debugId").textContent = "شناسه فنی: " + eitaaUserId;
+      if (String(eitaaUserId) === String(TEACHER_EITAA_ID)) {
+        document.getElementById("teacherNavBtn").classList.remove("hidden");
+      }
+    }
+    loadMaterials();
+    loadMyStatus();
+    if (wa && typeof wa.ready === "function") wa.ready();
+  };
+
+  function switchTab(tab) {
+    ["home", "materials", "teacher"].forEach(t => {
+      document.getElementById("tab-" + t).classList.toggle("hidden", t !== tab);
+    });
+    document.querySelectorAll(".navBtn").forEach(b => b.classList.remove("active"));
+    event.target.classList.add("active");
+    if (tab === "teacher") { loadTeacherAttendance(); loadTeacherHomework(); }
+  }
+
+  // ---------- حضور و غیاب ----------
+  function openPopup() { document.getElementById("popupError").textContent = ""; document.getElementById("overlay").style.display = "flex"; }
+  function closePopup() { document.getElementById("overlay").style.display = "none"; }
+  function openSettings() { document.getElementById("settingsError").textContent = ""; document.getElementById("settingsOverlay").style.display = "flex"; }
+  function closeSettings() { document.getElementById("settingsOverlay").style.display = "none"; }
+
+  function submitAttendance() {
+    const studentName = document.getElementById("studentName").value.trim();
+    const courseName = document.getElementById("courseName").value;
+    const popupError = document.getElementById("popupError");
+    const confirmBtn = document.getElementById("confirmBtn");
+    if (!studentName || !courseName) { popupError.textContent = "لطفاً هر دو فیلد را پر کنید."; return; }
+    confirmBtn.disabled = true; popupError.textContent = "";
+    callApi({
+      action: "attendance", eitaaUserId: eitaaUserId || "", eitaaProfileName: eitaaProfileName || "نامشخص",
+      studentName, courseName, persianDateTime: getPersianDateTime()
+    }).then(res => {
+      confirmBtn.disabled = false;
+      if (res.result === "success") {
+        closePopup();
+        document.getElementById("status").textContent = "✅ حضور با موفقیت ثبت شد.";
+      } else { popupError.textContent = res.message || "ثبت انجام نشد."; }
+    }).catch(() => { confirmBtn.disabled = false; popupError.textContent = "خطا در ارتباط."; });
+  }
+
+  function saveSchedule() {
+    const startTime = document.getElementById("startTime").value;
+    const endTime = document.getElementById("endTime").value;
+    const settingsError = document.getElementById("settingsError");
+    const saveBtn = document.getElementById("saveScheduleBtn");
+    if (!startTime || !endTime) { settingsError.textContent = "لطفاً هر دو ساعت را وارد کنید."; return; }
+    saveBtn.disabled = true; settingsError.textContent = "";
+    callApi({ action: "setSchedule", eitaaUserId: eitaaUserId || "", startTime, endTime }).then(res => {
+      saveBtn.disabled = false;
+      if (res.result === "success") { closeSettings(); document.getElementById("status").textContent = "✅ بازه‌ی زمانی ذخیره شد."; }
+      else { settingsError.textContent = res.message || "شما اجازه‌ی این کار را ندارید."; }
+    }).catch(() => { saveBtn.disabled = false; settingsError.textContent = "خطا در ارتباط."; });
+  }
+
+  // ---------- تکالیف و تدریس ----------
+  function loadMaterials() {
+    callApi({ action: "listMaterials" }).then(res => {
+      const box = document.getElementById("materialsList");
+      if (!res.items || res.items.length === 0) { box.textContent = "هنوز فایلی آپلود نشده."; return; }
+      box.innerHTML = res.items.map(m =>
+        '<div class="listItem"><b>' + m.title + '</b> (' + m.course + ')<br>' +
+        '<a href="' + m.fileUrl + '" target="_blank">دانلود فایل</a>' +
+        '<div class="meta">' + m.timestamp + '</div></div>'
+      ).join("");
+    }).catch(() => { document.getElementById("materialsList").textContent = "خطا در بارگذاری."; });
+  }
+
+  function submitHomework() {
+    const studentName = document.getElementById("hwStudentName").value.trim();
+    const courseName = document.getElementById("hwCourseName").value;
+    const fileInput = document.getElementById("hwFile");
+    const err = document.getElementById("hwError");
+    const btn = document.getElementById("hwSubmitBtn");
+    err.textContent = "";
+    if (!studentName || !courseName) { err.textContent = "لطفاً نام و درس را وارد کنید."; return; }
+    if (!fileInput.files[0]) { err.textContent = "لطفاً یک فایل انتخاب کنید."; return; }
+    const file = fileInput.files[0];
+    if (!checkFileSize(file)) { err.textContent = "حجم فایل باید کمتر از " + MAX_FILE_MB + " مگابایت باشد."; return; }
+
+    btn.disabled = true;
+    fileToBase64(file).then(base64 => {
+      return callApi({
+        action: "submitHomework", eitaaUserId: eitaaUserId || "", eitaaProfileName: eitaaProfileName || "نامشخص",
+        studentName, courseName, fileBase64: base64, fileName: file.name, mimeType: file.type || "application/octet-stream",
+        persianDateTime: getPersianDateTime()
+      });
+    }).then(res => {
+      btn.disabled = false;
+      if (res.result === "success") {
+        err.textContent = ""; document.getElementById("hwFile").value = "";
+        loadMyStatus();
+        alert("✅ تکلیف با موفقیت ارسال شد.");
+      } else { err.textContent = res.message || "ارسال ناموفق بود."; }
+    }).catch(() => { btn.disabled = false; err.textContent = "خطا در ارتباط یا حجم فایل زیاد است."; });
+  }
+
+  function loadMyStatus() {
+    if (!eitaaUserId) { document.getElementById("myStatus").textContent = "ابتدا باید از ایتا وارد شوید."; return; }
+    callApi({ action: "getMyStatus", eitaaUserId }).then(res => {
+      const box = document.getElementById("myStatus");
+      let html = "<div class='listItem'>تعداد حضور ثبت‌شده: " + (res.attendanceCount || 0) + "</div>";
+      if (res.homework && res.homework.length) {
+        html += res.homework.map(h =>
+          '<div class="listItem">' + h.course + ' - ' + h.fileName +
+          '<div class="meta">' + h.timestamp + (h.grade ? (' | نمره: ' + h.grade) : ' | هنوز نمره داده نشده') +
+          (h.note ? (' | یادداشت: ' + h.note) : '') + '</div></div>'
+        ).join("");
+      } else { html += "<div class='listItem'>هنوز تکلیفی ارسال نکرده‌اید.</div>"; }
+      box.innerHTML = html;
+    }).catch(() => { document.getElementById("myStatus").textContent = "خطا در بارگذاری."; });
+  }
+
+  // ---------- پنل معلم ----------
+  function uploadMaterial() {
+    const courseName = document.getElementById("matCourseName").value;
+    const title = document.getElementById("matTitle").value.trim();
+    const fileInput = document.getElementById("matFile");
+    const err = document.getElementById("matError");
+    err.textContent = "";
+    if (!courseName || !title) { err.textContent = "لطفاً درس و عنوان را وارد کنید."; return; }
+    if (!fileInput.files[0]) { err.textContent = "لطفاً یک فایل انتخاب کنید."; return; }
+    const file = fileInput.files[0];
+    if (!checkFileSize(file)) { err.textContent = "حجم فایل باید کمتر از " + MAX_FILE_MB + " مگابایت باشد."; return; }
+
+    fileToBase64(file).then(base64 => {
+      return callApi({
+        action: "uploadMaterial", eitaaUserId: eitaaUserId || "", courseName, title,
+        fileBase64: base64, fileName: file.name, mimeType: file.type || "application/octet-stream",
+        persianDateTime: getPersianDateTime()
+      });
+    }).then(res => {
+      if (res.result === "success") {
+        document.getElementById("matTitle").value = ""; document.getElementById("matFile").value = "";
+        loadMaterials();
+        alert("✅ فایل آپلود شد.");
+      } else { err.textContent = res.message || "آپلود ناموفق بود."; }
+    }).catch(() => { err.textContent = "خطا در ارتباط یا حجم فایل زیاد است."; });
+  }
+
+  function loadTeacherAttendance() {
+    callApi({ action: "teacherListAttendance", eitaaUserId: eitaaUserId || "" }).then(res => {
+      const box = document.getElementById("teacherAttendance");
+      if (res.result !== "success") { box.textContent = res.message || "دسترسی ندارید."; return; }
+      if (!res.rows || res.rows.length === 0) { box.textContent = "موردی ثبت نشده."; return; }
+      let html = "<table><tr><th>پروفایل</th><th>نام</th><th>درس</th><th>زمان</th></tr>";
+      res.rows.forEach(r => { html += "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td><td>" + r[2] + "</td><td>" + r[3] + "</td></tr>"; });
+      html += "</table>";
+      box.innerHTML = html;
+    }).catch(() => { document.getElementById("teacherAttendance").textContent = "خطا در بارگذاری."; });
+  }
+
+  function loadTeacherHomework() {
+    callApi({ action: "teacherListHomework", eitaaUserId: eitaaUserId || "" }).then(res => {
+      const box = document.getElementById("teacherHomework");
+      if (res.result !== "success") { box.textContent = res.message || "دسترسی ندارید."; return; }
+      if (!res.items || res.items.length === 0) { box.textContent = "تکلیفی ارسال نشده."; return; }
+      box.innerHTML = res.items.map(h =>
+        '<div class="listItem">' +
+        '<b>' + h.studentName + '</b> (' + h.profile + ') - ' + h.course + '<br>' +
+        '<a href="' + h.fileUrl + '" target="_blank">مشاهده فایل</a>' +
+        '<div class="meta">' + h.timestamp + '</div>' +
+        '<input type="text" placeholder="نمره" id="grade_' + h.id + '" style="width:70px;display:inline-block;margin-top:6px">' +
+        '<input type="text" placeholder="یادداشت" id="note_' + h.id + '" style="width:120px;display:inline-block">' +
+        '<button class="small" style="width:auto;display:inline-block;margin-right:6px" onclick="saveGrade(\'' + h.id + '\')">ثبت نمره</button>' +
+        '</div>'
+      ).join("");
+    }).catch(() => { document.getElementById("teacherHomework").textContent = "خطا در بارگذاری."; });
+  }
+
+  function saveGrade(id) {
+    const grade = document.getElementById("grade_" + id).value.trim();
+    const note = document.getElementById("note_" + id).value.trim();
+    if (!grade) { alert("لطفاً نمره را وارد کنید."); return; }
+    callApi({ action: "setGrade", eitaaUserId: eitaaUserId || "", submissionId: id, grade, note }).then(res => {
+      if (res.result === "success") { alert("✅ نمره ثبت شد."); loadTeacherHomework(); }
+      else { alert(res.message || "ثبت نمره ناموفق بود."); }
+    }).catch(() => alert("خطا در ارتباط."));
+  }
+</script>
+</body>
+</html>";
+  const TEACHER_EITAA_ID = "42407081";
+
+  let eitaaProfileName = null;
+  let eitaaUserId = null;
+
+  function tryGetEitaaUser() {
+    try {
+      const wa = window.Eitaa && window.Eitaa.WebApp;
+      if (wa && wa.initDataUnsafe && wa.initDataUnsafe.user) {
+        const u = wa.initDataUnsafe.user;
+        eitaaProfileName = [u.first_name, u.last_name].filter(Boolean).join(" ") || null;
+        eitaaUserId = u.id || null;
+        return !!eitaaProfileName;
+      }
+    } catch (e) { console.log(e); }
+    return false;
+  }
+
+  function getPersianDateTime() {
+    const now = new Date();
+    const d = new Intl.DateTimeFormat("fa-IR-u-ca-persian", { timeZone: "Asia/Tehran", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
+    const t = new Intl.DateTimeFormat("fa-IR", { timeZone: "Asia/Tehran", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(now);
+    return d + " - " + t;
+  }
+
+  function callApi(payload) {
+    return fetch(SHEET_ENDPOINT, {
+      method: "POST", body: JSON.stringify(payload),
+      headers: { "Content-Type": "text/plain;charset=utf-8" }
+    }).then(r => r.json());
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result.split(",")[1]);
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
+
+  const MAX_FILE_MB = 8;
+  function checkFileSize(file) {
+    return file.size <= MAX_FILE_MB * 1024 * 1024;
+  }
+
+  window.onload = function () {
+    const wa = window.Eitaa && window.Eitaa.WebApp;
+    const found = tryGetEitaaUser();
+    const nameDiv = document.getElementById("userName");
+    if (found) {
+      nameDiv.textContent = "کاربر ایتا: " + eitaaProfileName;
+    } else {
+      nameDiv.textContent = "اطلاعات کاربر ایتا در دسترس نیست.";
+    }
+    if (eitaaUserId) {
+      document.getElementById("debugId").textContent = "شناسه فنی: " + eitaaUserId;
+      if (String(eitaaUserId) === String(TEACHER_EITAA_ID)) {
+        document.getElementById("teacherNavBtn").classList.remove("hidden");
+      }
+    }
+    loadMaterials();
+    loadMyStatus();
+    if (wa && typeof wa.ready === "function") wa.ready();
+  };
+
+  function switchTab(tab) {
+    ["home", "materials", "teacher"].forEach(t => {
+      document.getElementById("tab-" + t).classList.toggle("hidden", t !== tab);
+    });
+    document.querySelectorAll(".navBtn").forEach(b => b.classList.remove("active"));
+    event.target.classList.add("active");
+    if (tab === "teacher") { loadTeacherAttendance(); loadTeacherHomework(); }
+  }
+
+  // ---------- حضور و غیاب ----------
+  function openPopup() { document.getElementById("popupError").textContent = ""; document.getElementById("overlay").style.display = "flex"; }
+  function closePopup() { document.getElementById("overlay").style.display = "none"; }
+  function openSettings() { document.getElementById("settingsError").textContent = ""; document.getElementById("settingsOverlay").style.display = "flex"; }
+  function closeSettings() { document.getElementById("settingsOverlay").style.display = "none"; }
+
+  function submitAttendance() {
+    const studentName = document.getElementById("studentName").value.trim();
+    const courseName = document.getElementById("courseName").value;
+    const popupError = document.getElementById("popupError");
+    const confirmBtn = document.getElementById("confirmBtn");
+    if (!studentName || !courseName) { popupError.textContent = "لطفاً هر دو فیلد را پر کنید."; return; }
+    confirmBtn.disabled = true; popupError.textContent = "";
+    callApi({
+      action: "attendance", eitaaUserId: eitaaUserId || "", eitaaProfileName: eitaaProfileName || "نامشخص",
+      studentName, courseName, persianDateTime: getPersianDateTime()
+    }).then(res => {
+      confirmBtn.disabled = false;
+      if (res.result === "success") {
+        closePopup();
+        document.getElementById("status").textContent = "✅ حضور با موفقیت ثبت شد.";
+      } else { popupError.textContent = res.message || "ثبت انجام نشد."; }
+    }).catch(() => { confirmBtn.disabled = false; popupError.textContent = "خطا در ارتباط."; });
+  }
+
+  function saveSchedule() {
+    const startTime = document.getElementById("startTime").value;
+    const endTime = document.getElementById("endTime").value;
+    const settingsError = document.getElementById("settingsError");
+    const saveBtn = document.getElementById("saveScheduleBtn");
+    if (!startTime || !endTime) { settingsError.textContent = "لطفاً هر دو ساعت را وارد کنید."; return; }
+    saveBtn.disabled = true; settingsError.textContent = "";
+    callApi({ action: "setSchedule", eitaaUserId: eitaaUserId || "", startTime, endTime }).then(res => {
+      saveBtn.disabled = false;
+      if (res.result === "success") { closeSettings(); document.getElementById("status").textContent = "✅ بازه‌ی زمانی ذخیره شد."; }
+      else { settingsError.textContent = res.message || "شما اجازه‌ی این کار را ندارید."; }
+    }).catch(() => { saveBtn.disabled = false; settingsError.textContent = "خطا در ارتباط."; });
+  }
+
+  // ---------- تکالیف و تدریس ----------
+  function loadMaterials() {
+    callApi({ action: "listMaterials" }).then(res => {
+      const box = document.getElementById("materialsList");
+      if (!res.items || res.items.length === 0) { box.textContent = "هنوز فایلی آپلود نشده."; return; }
+      box.innerHTML = res.items.map(m =>
+        '<div class="listItem"><b>' + m.title + '</b> (' + m.course + ')<br>' +
+        '<a href="' + m.fileUrl + '" target="_blank">دانلود فایل</a>' +
+        '<div class="meta">' + m.timestamp + '</div></div>'
+      ).join("");
+    }).catch(() => { document.getElementById("materialsList").textContent = "خطا در بارگذاری."; });
+  }
+
+  function submitHomework() {
+    const studentName = document.getElementById("hwStudentName").value.trim();
+    const courseName = document.getElementById("hwCourseName").value;
+    const fileInput = document.getElementById("hwFile");
+    const err = document.getElementById("hwError");
+    const btn = document.getElementById("hwSubmitBtn");
+    err.textContent = "";
+    if (!studentName || !courseName) { err.textContent = "لطفاً نام و درس را وارد کنید."; return; }
+    if (!fileInput.files[0]) { err.textContent = "لطفاً یک فایل انتخاب کنید."; return; }
+    const file = fileInput.files[0];
+    if (!checkFileSize(file)) { err.textContent = "حجم فایل باید کمتر از " + MAX_FILE_MB + " مگابایت باشد."; return; }
+
+    btn.disabled = true;
+    fileToBase64(file).then(base64 => {
+      return callApi({
+        action: "submitHomework", eitaaUserId: eitaaUserId || "", eitaaProfileName: eitaaProfileName || "نامشخص",
+        studentName, courseName, fileBase64: base64, fileName: file.name, mimeType: file.type || "application/octet-stream",
+        persianDateTime: getPersianDateTime()
+      });
+    }).then(res => {
+      btn.disabled = false;
+      if (res.result === "success") {
+        err.textContent = ""; document.getElementById("hwFile").value = "";
+        loadMyStatus();
+        alert("✅ تکلیف با موفقیت ارسال شد.");
+      } else { err.textContent = res.message || "ارسال ناموفق بود."; }
+    }).catch(() => { btn.disabled = false; err.textContent = "خطا در ارتباط یا حجم فایل زیاد است."; });
+  }
+
+  function loadMyStatus() {
+    if (!eitaaUserId) { document.getElementById("myStatus").textContent = "ابتدا باید از ایتا وارد شوید."; return; }
+    callApi({ action: "getMyStatus", eitaaUserId }).then(res => {
+      const box = document.getElementById("myStatus");
+      let html = "<div class='listItem'>تعداد حضور ثبت‌شده: " + (res.attendanceCount || 0) + "</div>";
+      if (res.homework && res.homework.length) {
+        html += res.homework.map(h =>
+          '<div class="listItem">' + h.course + ' - ' + h.fileName +
+          '<div class="meta">' + h.timestamp + (h.grade ? (' | نمره: ' + h.grade) : ' | هنوز نمره داده نشده') +
+          (h.note ? (' | یادداشت: ' + h.note) : '') + '</div></div>'
+        ).join("");
+      } else { html += "<div class='listItem'>هنوز تکلیفی ارسال نکرده‌اید.</div>"; }
+      box.innerHTML = html;
+    }).catch(() => { document.getElementById("myStatus").textContent = "خطا در بارگذاری."; });
+  }
+
+  // ---------- پنل معلم ----------
+  function uploadMaterial() {
+    const courseName = document.getElementById("matCourseName").value;
+    const title = document.getElementById("matTitle").value.trim();
+    const fileInput = document.getElementById("matFile");
+    const err = document.getElementById("matError");
+    err.textContent = "";
+    if (!courseName || !title) { err.textContent = "لطفاً درس و عنوان را وارد کنید."; return; }
+    if (!fileInput.files[0]) { err.textContent = "لطفاً یک فایل انتخاب کنید."; return; }
+    const file = fileInput.files[0];
+    if (!checkFileSize(file)) { err.textContent = "حجم فایل باید کمتر از " + MAX_FILE_MB + " مگابایت باشد."; return; }
+
+    fileToBase64(file).then(base64 => {
+      return callApi({
+        action: "uploadMaterial", eitaaUserId: eitaaUserId || "", courseName, title,
+        fileBase64: base64, fileName: file.name, mimeType: file.type || "application/octet-stream",
+        persianDateTime: getPersianDateTime()
+      });
+    }).then(res => {
+      if (res.result === "success") {
+        document.getElementById("matTitle").value = ""; document.getElementById("matFile").value = "";
+        loadMaterials();
+        alert("✅ فایل آپلود شد.");
+      } else { err.textContent = res.message || "آپلود ناموفق بود."; }
+    }).catch(() => { err.textContent = "خطا در ارتباط یا حجم فایل زیاد است."; });
+  }
+
+  function loadTeacherAttendance() {
+    callApi({ action: "teacherListAttendance", eitaaUserId: eitaaUserId || "" }).then(res => {
+      const box = document.getElementById("teacherAttendance");
+      if (res.result !== "success") { box.textContent = res.message || "دسترسی ندارید."; return; }
+      if (!res.rows || res.rows.length === 0) { box.textContent = "موردی ثبت نشده."; return; }
+      let html = "<table><tr><th>پروفایل</th><th>نام</th><th>درس</th><th>زمان</th></tr>";
+      res.rows.forEach(r => { html += "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td><td>" + r[2] + "</td><td>" + r[3] + "</td></tr>"; });
+      html += "</table>";
+      box.innerHTML = html;
+    }).catch(() => { document.getElementById("teacherAttendance").textContent = "خطا در بارگذاری."; });
+  }
+
+  function loadTeacherHomework() {
+    callApi({ action: "teacherListHomework", eitaaUserId: eitaaUserId || "" }).then(res => {
+      const box = document.getElementById("teacherHomework");
+      if (res.result !== "success") { box.textContent = res.message || "دسترسی ندارید."; return; }
+      if (!res.items || res.items.length === 0) { box.textContent = "تکلیفی ارسال نشده."; return; }
+      box.innerHTML = res.items.map(h =>
+        '<div class="listItem">' +
+        '<b>' + h.studentName + '</b> (' + h.profile + ') - ' + h.course + '<br>' +
+        '<a href="' + h.fileUrl + '" target="_blank">مشاهده فایل</a>' +
+        '<div class="meta">' + h.timestamp + '</div>' +
+        '<input type="text" placeholder="نمره" id="grade_' + h.id + '" style="width:70px;display:inline-block;margin-top:6px">' +
+        '<input type="text" placeholder="یادداشت" id="note_' + h.id + '" style="width:120px;display:inline-block">' +
+        '<button class="small" style="width:auto;display:inline-block;margin-right:6px" onclick="saveGrade(\'' + h.id + '\')">ثبت نمره</button>' +
+        '</div>'
+      ).join("");
+    }).catch(() => { document.getElementById("teacherHomework").textContent = "خطا در بارگذاری."; });
+  }
+
+  function saveGrade(id) {
+    const grade = document.getElementById("grade_" + id).value.trim();
+    const note = document.getElementById("note_" + id).value.trim();
+    if (!grade) { alert("لطفاً نمره را وارد کنید."); return; }
+    callApi({ action: "setGrade", eitaaUserId: eitaaUserId || "", submissionId: id, grade, note }).then(res => {
+      if (res.result === "success") { alert("✅ نمره ثبت شد."); loadTeacherHomework(); }
+      else { alert(res.message || "ثبت نمره ناموفق بود."); }
+    }).catch(() => alert("خطا در ارتباط."));
   }
 </script>
 </body>
